@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ActivityGen - Random Activity Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css">
+    <style>
+        /* Animations */
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+        
+        @keyframes color-shift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes slide-up {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Background shapes */
+        .shape {
+            position: absolute;
+            z-index: 0;
+            opacity: 0.5;
+            filter: blur(8px);
+        }
+        
+        .shape-1 {
+            width: 300px;
+            height: 300px;
+            border-radius: 40% 60% 70% 30% / 40% 50% 50% 60%;
+            background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+            animation: float 12s ease-in-out infinite, rotate 25s linear infinite;
+            top: 10%;
+            left: 10%;
+        }
+        
+        .shape-2 {
+            width: 200px;
+            height: 200px;
+            border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+            background: linear-gradient(45deg, #84fab0, #8fd3f4);
+            animation: float 8s ease-in-out infinite reverse, rotate 20s linear infinite reverse;
+            top: 60%;
+            left: 60%;
+        }
+        
+        .shape-3 {
+            width: 250px;
+            height: 250px;
+            border-radius: 50% 50% 30% 70% / 50% 50% 70% 30%;
+            background: linear-gradient(45deg, #a18cd1, #fbc2eb);
+            animation: float 10s ease-in-out infinite, rotate 15s linear infinite;
+            top: 40%;
+            left: 25%;
+        }
+        
+        .shape-4 {
+            width: 180px;
+            height: 180px;
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            background: linear-gradient(45deg, #fad0c4, #ffd1ff);
+            animation: float 15s ease-in-out infinite reverse, rotate 30s linear infinite;
+            top: 20%;
+            left: 70%;
+        }
+        
+        /* Gradient backgrounds */
+        .gradient-bg {
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: color-shift 15s ease infinite;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+        
+        /* For scrolling section */
+        html, body {
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+        
+        /* Animation classes */
+        .animate-slide-up {
+            animation: slide-up 0.6s ease forwards;
+        }
+        
+        .animate-pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .page-section {
+            min-height: 100vh;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .active-section {
+            display: flex;
+            opacity: 1;
+        }
+        
+        /* Category cards with hover effects */
+        .category-card {
+            transition: all 0.3s ease;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .category-card.selected {
+            border: 3px solid #4f46e5;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="font-sans antialiased">
+    <!-- Background shapes -->
+    <div class="fixed inset-0 overflow-hidden z-0 gradient-bg">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+        <div class="shape shape-4"></div>
+    </div>
+    
+    <!-- Landing Page (Get Started) -->
+    <section id="landing" class="page-section active-section relative flex flex-col items-center justify-center min-h-screen p-6 z-10">
+        <div class="text-center animate-slide-up">
+            <h1 class="text-5xl md:text-6xl font-bold text-white mb-4 tracking-tight">
+                <span class="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
+                    ActivityGen
+                </span>
+            </h1>
+            <p class="text-xl md:text-2xl text-white mb-8 max-w-lg mx-auto">
+                Discover exciting new activities based on your interests. Let us inspire your next adventure!
+            </p>
+            <button id="getStartedBtn" class="animate-pulse bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold py-3 px-8 rounded-full text-lg hover:from-purple-600 hover:to-indigo-700 transition duration-300 transform hover:scale-105 shadow-lg">
+                Get Started
+            </button>
+        </div>
+        <div class="absolute bottom-10 w-full text-center text-white opacity-75">
+            <p class="text-sm">Swipe up to explore more</p>
+            <i class="fas fa-chevron-down animate-bounce mt-2"></i>
+        </div>
+    </section>
+
+    <!-- Category Selection -->
+    <section id="categories" class="page-section relative flex flex-col items-center justify-center min-h-screen p-6 z-10">
+        <div class="glass-card rounded-xl p-8 w-full max-w-4xl mx-auto animate-slide-up">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 text-white">Choose a Category</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Recreational Category -->
+                <div class="category-card glass-card rounded-xl p-6 cursor-pointer" data-category="recreational">
+                    <div class="text-center">
+                        <div class="bg-gradient-to-br from-blue-400 to-purple-500 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-gamepad text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Recreational</h3>
+                        <p class="text-gray-200 text-sm">Fun activities to enjoy in your free time</p>
+                    </div>
+                </div>
+
+                <!-- Educational Category -->
+                <div class="category-card glass-card rounded-xl p-6 cursor-pointer" data-category="educational">
+                    <div class="text-center">
+                        <div class="bg-gradient-to-br from-green-400 to-teal-500 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-book text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Educational</h3>
+                        <p class="text-gray-200 text-sm">Activities that help you learn and grow</p>
+                    </div>
+                </div>
+
+                <!-- Social Category -->
+                <div class="category-card glass-card rounded-xl p-6 cursor-pointer" data-category="social">
+                    <div class="text-center">
+                        <div class="bg-gradient-to-br from-yellow-400 to-orange-500 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-users text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Social</h3>
+                        <p class="text-gray-200 text-sm">Connect with others through these activities</p>
+                    </div>
+                </div>
+
+                <!-- DIY Category -->
+                <div class="category-card glass-card rounded-xl p-6 cursor-pointer" data-category="diy">
+                    <div class="text-center">
+                        <div class="bg-gradient-to-br from-red-400 to-pink-500 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-tools text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">DIY/Crafts</h3>
+                        <p class="text-gray-200 text-sm">Create something with your own hands</p>
+                    </div>
+                </div>
+
+                <!-- Fitness Category -->
+                <div class="category-card glass-card rounded-xl p-6 cursor-pointer" data-category="fitness">
+                    <div class="text-center">
+                        <div class="bg-gradient-to-br from-indigo-400 to-purple-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-dumbbell text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Fitness</h3>
+                        <p class="text-gray-200 text-sm">Stay active and healthy with these activities</p>
+                    </div>
+                </div>
+
+                <!-- Random (All) Category -->
+                <div class="category-card glass-card rounded-xl p-6 cursor-pointer" data-category="random">
+                    <div class="text-center">
+                        <div class="bg-gradient-to-br from-pink-400 to-blue-500 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-random text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Random</h3>
+                        <p class="text-gray-200 text-sm">Surprise me with any activity!</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-8">
+                <button id="generateBtn" class="bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold py-3 px-8 rounded-full text-lg hover:from-purple-600 hover:to-indigo-700 transition duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50" disabled>
+                    Generate Activity
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Activity Display -->
+    <section id="activity" class="page-section relative flex flex-col items-center justify-center min-h-screen p-6 z-10">
+        <div class="glass-card rounded-xl p-8 w-full max-w-4xl mx-auto animate-slide-up">
+            <div class="text-center">
+                <h2 class="text-3xl font-bold text-white mb-2">Your Activity</h2>
+                <div class="bg-gradient-to-r from-purple-300 to-pink-300 h-1 w-24 mx-auto mb-8 rounded-full"></div>
+                
+                <div id="category-badge" class="inline-block bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-medium px-4 py-1 rounded-full mb-6">
+                    Category
+                </div>
+                
+                <div id="activity-display" class="glass-card rounded-xl p-8 mb-8 mx-auto max-w-2xl">
+                    <h3 id="activity-title" class="text-2xl md:text-3xl font-bold text-white mb-4">
+                        Your random activity will appear here!
+                    </h3>
+                    <p id="activity-description" class="text-gray-200 text-lg mb-6">
+                        Select a category and click generate to get started.
+                    </p>
+                    <div id="activity-details" class="text-gray-200 text-sm mb-4">
+                        <div class="flex items-center justify-center space-x-2 mb-2">
+                            <i class="fas fa-users"></i>
+                            <span id="participants">-</span>
+                        </div>
+                        <div class="flex items-center justify-center space-x-2">
+                            <i class="fas fa-dollar-sign"></i>
+                            <span id="price">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex flex-wrap justify-center gap-4">
+                    <button id="tryAgainBtn" class="bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold py-3 px-8 rounded-full text-lg hover:from-purple-600 hover:to-indigo-700 transition duration-300 transform hover:scale-105 shadow-lg">
+                        Try Another
+                    </button>
+                    <button id="saveActivityBtn" class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold py-3 px-8 rounded-full text-lg hover:from-yellow-500 hover:to-orange-600 transition duration-300 transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-heart mr-2"></i> Save Activity
+                    </button>
+                    <button id="backToCategoriesBtn" class="bg-gradient-to-r from-gray-500 to-gray-700 text-white font-bold py-3 px-8 rounded-full text-lg hover:from-gray-600 hover:to-gray-800 transition duration-300 transform hover:scale-105 shadow-lg">
+                        Change Category
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Saved Activities -->
+        <div id="saved-activities" class="glass-card rounded-xl p-8 w-full max-w-4xl mx-auto mt-8 animate-slide-up hidden">
+            <h3 class="text-2xl font-bold text-white mb-4 text-center">Saved Activities</h3>
+            <div id="saved-activities-list" class="space-y-4">
+                <!-- Saved activities will be added here dynamically -->
+                <p class="text-center text-gray-200">No saved activities yet.</p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Activity database
+        const activities = {
+            recreational: [
+                { title: "Go to a local arcade", description: "Visit a local arcade and play some classic games", participants: "1-4", price: "$$" },
+                { title: "Have a picnic in the park", description: "Pack some food and drinks and enjoy nature", participants: "1-6", price: "$" },
+                { title: "Go bowling", description: "Visit a bowling alley for some friendly competition", participants: "2-8", price: "$$" },
+                { title: "Movie marathon", description: "Pick a movie series and watch them back to back", participants: "1-10", price: "$" },
+                { title: "Go hiking", description: "Find a local trail and explore the outdoors", participants: "1-6", price: "$" },
+                { title: "Visit a museum", description: "Explore art, history, or science at a local museum", participants: "1-4", price: "$$" }
+            ],
+            educational: [
+                { title: "Learn a new language", description: "Download a language app and start learning basics of a new language", participants: "1", price: "$" },
+                { title: "Take a free online course", description: "Sign up for a free course on platforms like Coursera or edX", participants: "1", price: "Free" },
+                { title: "Visit a science center", description: "Explore interactive exhibits at a science center", participants: "1-4", price: "$$" },
+                { title: "Start a book club", description: "Choose a book and invite friends to discuss it", participants: "3-10", price: "$" },
+                { title: "Visit a historical landmark", description: "Learn about history by visiting a local landmark", participants: "1-8", price: "$-$$" },
+                { title: "Watch a documentary", description: "Find an interesting documentary on a topic you know little about", participants: "1-4", price: "$" }
+            ],
+            social: [
+                { title: "Host a game night", description: "Invite friends over for board games and snacks", participants: "4-12", price: "$" },
+                { title: "Attend a local meetup", description: "Find a group with similar interests on Meetup.com", participants: "Varies", price: "Free-$" },
+                { title: "Volunteer for a cause", description: "Find a local charity or organization to volunteer with", participants: "Varies", price: "Free" },
+                { title: "Host a potluck dinner", description: "Everyone brings a dish to share", participants: "6-15", price: "$" },
+                { title: "Join a sports league", description: "Find a recreational sports league in your area", participants: "Varies", price: "$$" },
+                { title: "Attend a local event", description: "Check your city's calendar for festivals or community events", participants: "Varies", price: "Free-$$" }
+            ],
+            diy: [
+                { title: "Learn origami", description: "Follow online tutorials to create paper art", participants: "1-3", price: "$" },
+                { title: "Make homemade candles", description: "Create your own custom scented candles", participants: "1-4", price: "$$" },
+                { title: "Start a small herb garden", description: "Grow herbs in your kitchen or balcony", participants: "1-2", price: "$" },
+                { title: "Upcycle old furniture", description: "Give new life to an old piece of furniture", participants: "1-2", price: "$$" },
+                { title: "Make greeting cards", description: "Create personalized cards for upcoming occasions", participants: "1-4", price: "$" },
+                { title: "Build a birdhouse", description: "Create a home for local birds with simple materials", participants: "1-2", price: "$" }
+            ],
+            fitness: [
+                { title: "Try a new workout routine", description: "Find a free workout video online to follow", participants: "1", price: "Free" },
+                { title: "Go for a bike ride", description: "Explore your area on a bicycle", participants: "1-4", price: "Free" },
+                { title: "Take a dance class", description: "Learn salsa, hip-hop, or another dance style", participants: "1-20", price: "$$" },
+                { title: "Go swimming", description: "Visit a local pool or natural swimming spot", participants: "1-6", price: "$-$$" },
+                { title: "Try yoga", description: "Follow along with a beginner yoga video or class", participants: "1", price: "Free-$$" },
+                { title: "Go rock climbing", description: "Visit an indoor climbing gym", participants: "2-4", price: "$$" }
+            ]
+        };
+
+        // DOM Elements
+        const sections = document.querySelectorAll('.page-section');
+        const getStartedBtn = document.getElementById('getStartedBtn');
+        const generateBtn = document.getElementById('generateBtn');
+        const categoryCards = document.querySelectorAll('.category-card');
+        const tryAgainBtn = document.getElementById('tryAgainBtn');
+        const saveActivityBtn = document.getElementById('saveActivityBtn');
+        const backToCategoriesBtn = document.getElementById('backToCategoriesBtn');
+        const savedActivitiesSection = document.getElementById('saved-activities');
+        const savedActivitiesList = document.getElementById('saved-activities-list');
+
+        // Variables
+        let selectedCategory = null;
+        let currentActivity = null;
+        let savedActivities = JSON.parse(localStorage.getItem('savedActivities')) || [];
+
+        // Navigation functions
+        function showSection(sectionId) {
+            sections.forEach(section => {
+                section.classList.remove('active-section');
+            });
+            document.getElementById(sectionId).classList.add('active-section');
+        }
+
+        // Initialize saved activities
+        function initSavedActivities() {
+            if (savedActivities.length > 0) {
+                savedActivitiesSection.classList.remove('hidden');
+                updateSavedActivitiesList();
+            } else {
+                savedActivitiesSection.classList.add('hidden');
+            }
+        }
+
+        // Update saved activities list
+        function updateSavedActivitiesList() {
+            if (savedActivities.length === 0) {
+                savedActivitiesList.innerHTML = '<p class="text-center text-gray-200">No saved activities yet.</p>';
+                return;
+            }
+
+            savedActivitiesList.innerHTML = '';
+            savedActivities.forEach((activity, index) => {
+                const activityItem = document.createElement('div');
+                activityItem.className = 'glass-card rounded-lg p-4 flex justify-between items-center';
+                activityItem.innerHTML = `
+                    <div>
+                        <h4 class="text-white font-bold">${activity.title}</h4>
+                        <p class="text-sm text-gray-200">${activity.category}</p>
+                    </div>
+                    <button class="remove-saved text-white hover:text-red-400" data-index="${index}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                savedActivitiesList.appendChild(activityItem);
+            });
+
+            // Add event listeners to remove buttons
+            document.querySelectorAll('.remove-saved').forEach(button => {
+                button.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    savedActivities.splice(index, 1);
+                    localStorage.setItem('savedActivities', JSON.stringify(savedActivities));
+                    updateSavedActivitiesList();
+                    if (savedActivities.length === 0) {
+                        savedActivitiesSection.classList.add('hidden');
+                    }
+                });
+            });
+        }
+
+        // Generate random activity
+        function generateActivity() {
+            let activityPool = [];
+            
+            if (selectedCategory === 'random') {
+                Object.values(activities).forEach(categoryActivities => {
+                    activityPool = [...activityPool, ...categoryActivities];
+                });
+            } else {
+                activityPool = activities[selectedCategory];
+            }
+            
+            const randomIndex = Math.floor(Math.random() * activityPool.length);
+            currentActivity = {
+                ...activityPool[randomIndex],
+                category: selectedCategory === 'random' ? 
+                    Object.keys(activities).find(key => 
+                        activities[key].some(act => act.title === activityPool[randomIndex].title)
+                    ) : selectedCategory
+            };
+            
+            // Display the activity
+            document.getElementById('category-badge').innerText = capitalizeFirstLetter(currentActivity.category);
+            document.getElementById('activity-title').innerText = currentActivity.title;
+            document.getElementById('activity-description').innerText = currentActivity.description;
+            document.getElementById('participants').innerText = currentActivity.participants;
+            document.getElementById('price').innerText = currentActivity.price;
+            
+            // Set gradient based on category
+            const gradientClass = getCategoryGradient(currentActivity.category);
+            document.getElementById('category-badge').className = `inline-block ${gradientClass} text-white text-sm font-medium px-4 py-1 rounded-full mb-6`;
+            
+            showSection('activity');
+        }
+
+        // Helper function to capitalize first letter
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
+        // Get gradient class based on category
+        function getCategoryGradient(category) {
+            const gradients = {
+                recreational: 'bg-gradient-to-r from-blue-400 to-purple-500',
+                educational: 'bg-gradient-to-r from-green-400 to-teal-500',
+                social: 'bg-gradient-to-r from-yellow-400 to-orange-500',
+                diy: 'bg-gradient-to-r from-red-400 to-pink-500',
+                fitness: 'bg-gradient-to-r from-indigo-400 to-purple-600',
+                random: 'bg-gradient-to-r from-pink-400 to-blue-500'
+            };
+            
+            return gradients[category] || 'bg-gradient-to-r from-gray-500 to-gray-700';
+        }
+
+        // Event Listeners
+        getStartedBtn.addEventListener('click', () => showSection('categories'));
+
+        categoryCards.forEach(card => {
+            card.addEventListener('click', function() {
+                // Remove selection from all cards
+                categoryCards.forEach(c => c.classList.remove('selected'));
+                
+                // Add selection to clicked card
+                this.classList.add('selected');
+                
+                // Store selected category
+                selectedCategory = this.getAttribute('data-category');
+                
+                // Enable generate button
+                generateBtn.removeAttribute('disabled');
+            });
+        });
+
+        generateBtn.addEventListener('click', generateActivity);
+        
+        tryAgainBtn.addEventListener('click', generateActivity);
+        
+        backToCategoriesBtn.addEventListener('click', () => showSection('categories'));
+        
+        saveActivityBtn.addEventListener('click', () => {
+            if (currentActivity && !savedActivities.some(activity => activity.title === currentActivity.title)) {
+                savedActivities.push(currentActivity);
+                localStorage.setItem('savedActivities', JSON.stringify(savedActivities));
+                
+                // Show the saved activities section
+                savedActivitiesSection.classList.remove('hidden');
+                updateSavedActivitiesList();
+                
+                // Show confirmation animation
+                saveActivityBtn.innerHTML = '<i class="fas fa-check mr-2"></i> Saved!';
+                setTimeout(() => {
+                    saveActivityBtn.innerHTML = '<i class="fas fa-heart mr-2"></i> Save Activity';
+                }, 2000);
+            }
+        });
+
+        // Initialize saved activities on load
+        initSavedActivities();
+    </script>
+</body>
+</html>
